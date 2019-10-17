@@ -1,23 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, useCallback, useEffect } from 'react';
 import './App.css';
+import Axios from 'axios';
+import StarRatingComponent from 'react-star-rating-component';
+
+
+
+async function getNewDogImageUrl() {
+  const randomDog = await Axios.get('https://dog.ceo/api/breeds/image/random')
+
+  return randomDog.data.message
+}
+
 
 function App() {
+
+  const [dogImage, setDogImage] = useState('hi');
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const requestNewDog = useCallback(async () => {
+    setIsLoading(true);
+    const imageUrl = await getNewDogImageUrl()
+    setDogImage(imageUrl);
+    setIsLoading(false);
+  }, [])
+
+  useEffect(() => {
+    requestNewDog();
+  }, [requestNewDog]);
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        {!isLoading && (
+          <>
+          <StarRatingComponent emptyStarColor="#e0e0e0"/>
+         <img src={dogImage} className="App-logo" alt="logo" />
+         <br />
+         <br />
+         <button className="button1" onClick={requestNewDog}>Get me a new Puppy!</button>
+        </>
+        )}
       </header>
     </div>
   );
